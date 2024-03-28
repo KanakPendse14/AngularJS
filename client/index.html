@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+  <meta charset="utf-8">
+  <title>Kindergarten School Management System</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+  <style>
+    body {
+      /* background-image: url('/bgimage.png'); */
+      background-color: rgb(178, 237, 231);
+      background-size: cover;
+      font-family: Arial, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+
+    header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100; /* Ensure the header stays above other content */
+  background-color: rgba(0, 123, 255, 0.7); /* Adjust the last value (alpha) for transparency */
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+    }
+
+    .header-left {
+      flex: 1;
+      margin-left: 0%;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      margin-right: 0%;
+    }
+
+    .header-right a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .header-right a:hover {
+      text-decoration: underline;
+    }
+    .content-area {
+      max-width: 800px;
+      margin: 100px auto 50px;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    h1, h2 {
+      text-align: center;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    button {
+      display: block;
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    li button {
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body ng-controller="StudentController">
+    <header>
+        <div class="header-right">
+          <h1 >Student/Teacher Diary</h1>
+          <div class="header-left">
+            <!-- <a href="#">Add Teacher</a>
+            <a href="#">Add Student</a> -->
+            <a href="#" ng-click="showAddTeacherForm()">Add Teacher</a>
+            <a href="#" ng-click="showAddStudentForm()">Add Student</a>
+            <a href="#" ng-click="logout()">LogOUT</a>
+          </div>
+        </div>
+      </header>
+    <div class="content-area">
+        <h1>Kindergarten School Diary</h1>
+
+        <!-- Add Teacher Form -->
+        <div ng-show="showAddTeacherForm">
+            <h2>Add Teacher</h2>
+            <form ng-submit="addTeacher()">
+                <input type="text" ng-model="newTeacher.name" placeholder="Name" required>
+                <input type="number" ng-model="newTeacher.age" placeholder="Age" required min="20">
+                <input type="text" ng-model="newTeacher.education" placeholder="Education" required>
+                <input type="number" ng-model="newTeacher.experience" placeholder="Years of Experience" required min="0">
+                <input type="text" ng-model="newTeacher.address" placeholder="Address" required>
+                <input type="text" ng-model="newTeacher.salaryRange" placeholder="Expected Salary Range" required>
+                <button type="submit">Add Teacher</button>
+            </form>
+        </div>
+
+        <!-- Add student fom -->
+        <div>
+            <h2>Add Student</h2>
+            <form ng-submit="addStudent()">
+                <input type="text" ng-model="newStudent.name" placeholder="Name" required>
+                <input type="number" ng-model="newStudent.age" placeholder="Age" required min="3" max="10">
+                <input type="text" ng-model="newStudent.mothersname" placeholder="Mothersname" required>
+                <input type="text" ng-model="newStudent.fathername" placeholder="Fathername" required>
+                <input type="text" ng-model="newStudent.address" placeholder="Address" required>
+                <input type="text" ng-model="newStudent.bloodgroup" placeholder="Bloodgroup" required>
+                <button type="submit">Add Student</button>
+            </form>
+        </div>
+            <!-- show added students -->
+        <div ng-show="studentsLoaded">
+            <h2>Students</h2>
+            <ul>
+                <li ng-repeat="student in students">
+                    <ul>
+                        <li><b>Name:  {{ student.name }}</b> </li>   
+                        <li><b>Mothers Name:  {{student.mothersname}}</b></li> 
+                        <li><b>Age: {{ student.age }}</b></li>     
+                        <li><b>Fathers Name:  {{student.fathername}}</b>  </li>
+                        <li><b>Recedential Address: {{ student.address }}</b></li>    
+                        <li><b>Blood Group:  {{student.bloodgroup}} </b></li>
+                    </ul>
+                    <button ng-click="deleteStudent(student._id)">Delete</button>
+                    <button ng-click="editStudent(student)">Edit</button>
+                </li>
+            </ul>
+        </div>
+
+        <div ng-show="editingStudent">
+            <h2>Edit Student</h2>
+            <form ng-submit="updateStudent()">
+               <a>Name:</a> <input type="text" ng-model="editingStudent.name" required>
+                <a>Age</a><input type="number" ng-model="editingStudent.age" required>
+                <a>Mothers name</a><input type="text" ng-model="editingStudent.mothersname" required>
+                <a>Fathers Name</a><input type="text" ng-model="editingStudent.fathername" required>
+                <a>Resedential Adderss</a><input type="text" ng-model="editingStudent.address" required>
+                <a>Blood Group</a><input type="text" ng-model="editingStudent.bloodgroup" required>
+                <button type="submit">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Show added teachers -->
+    
+    <div ng-show="teachersLoaded">
+        <h2>Teachers</h2>
+        <ul>
+            <li ng-repeat="teacher in teachers">
+                <!-- Display teacher information here -->
+                <ul>
+                    <li><b>Name: {{ teacher.name }}</b></li>
+                    <li><b>Age: {{ teacher.age }}</b></li>
+                    <li><b>Education: {{ teacher.education }}</b></li>
+                    <li><b>Years of Experience: {{ teacher.experience }}</b></li>
+                    <li><b>Address: {{ teacher.address }}</b></li>
+                    <li><b>Expected Salary Range: {{ teacher.salaryRange }}</b></li>
+                </ul>
+                <button ng-click="deleteTeacher(teacher._id)">Delete</button>
+                <button ng-click="editTeacher(teacher)">Edit</button>
+            </li>
+        </ul>
+    </div>
+
+            <!-- Edit Teacher Section -->
+            <!-- <div ng-show="editingTeacher">
+                <h2>Edit Teacher</h2>
+               
+            </div>
+        </div> -->
+    <script>
+        angular.module('myApp', [])
+            .controller('StudentController', function($scope, $http) {
+                $scope.newStudent = {};
+                $scope.editingStudent = null;
+                $scope.students = [];
+                $scope.studentsLoaded = false;
+                // Load students from the server
+                $http.get('http://localhost:3000/api/students')
+                    .then(function(response) {
+                        $scope.students = response.data;
+                        $scope.studentsLoaded = true;
+                    })
+                    .catch(function(error) {
+                        console.error('Error loading students:', error);
+                    });
+                // Load teachers from the server
+                $scope.addStudent = function() {
+                    $http.post('http://localhost:3000/api/students', $scope.newStudent)
+                        .then(function(response) {
+                            $scope.students.push(response.data);
+                            $scope.newStudent = {};
+                        });
+                };
+                $scope.deleteStudent = function(studentId) {
+                    $http.delete('http://localhost:3000/api/students/' + studentId)
+                        .then(function(response) {
+                            $scope.students = $scope.students.filter(function(student) {
+                                return student._id !== studentId;
+                            });
+                        });
+                };
+                $scope.editStudent = function(student) {
+                    $scope.editingStudent = angular.copy(student);
+                };
+
+                $scope.updateStudent = function() {
+                    $http.put('http://localhost:3000/api/students/' + $scope.editingStudent._id, $scope.editingStudent)
+                        .then(function(response) {
+                            var index = $scope.students.findIndex(function(s) {
+                                return s._id === $scope.editingStudent._id;
+                            });
+                            $scope.students[index] = response.data;
+                            $scope.editingStudent = null;
+                        });
+                };
+            })
+
+        .controller('TeacherController', function($scope, $http) {
+            $scope.newTeacher = {};
+            $scope.teachers = [];
+            $scope.teachersLoaded = false;
+            $scope.showAddTeacher = false;
+
+            $scope.showAddTeacherForm = function() {
+            $scope.addTeacherFormVisible = true; // Set a flag to show the form
+    };
+            // Load teachers from the server
+            $http.get('http://localhost:3000/api/teachers')
+                .then(function(response) {
+                    $scope.teachers = response.data;
+                    $scope.teachersLoaded = true;
+                })
+                .catch(function(error) {
+                    console.error('Error loading teachers:', error);
+                });
+
+            // Function to add a new teacher
+            $scope.addTeacher = function() {
+                $http.post('http://localhost:3000/api/teachers', $scope.newTeacher)
+                    .then(function(response) {
+                        $scope.teachers.push(response.data);
+                        $scope.newTeacher = {};
+                    });
+            }    
+        })        
+            $scope.loadStudents();
+            $scope.loadTeachers();
+            
+    </script>
+</body>
+</html>
